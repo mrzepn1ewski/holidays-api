@@ -1,4 +1,4 @@
-package pl.mrzepniewski.holidaysapi.exceptions;
+package pl.mrzepniewski.holidaysapi.controller.exceptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

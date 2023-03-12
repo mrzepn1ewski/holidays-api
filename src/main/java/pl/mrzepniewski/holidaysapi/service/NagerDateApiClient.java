@@ -1,4 +1,4 @@
-package pl.mrzepniewski.holidaysapi.client;
+package pl.mrzepniewski.holidaysapi.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,14 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import pl.mrzepniewski.holidaysapi.exceptions.DataSourceException;
 import pl.mrzepniewski.holidaysapi.model.CountryDTO;
 import pl.mrzepniewski.holidaysapi.model.CountryHolidayDTO;
 
 import java.util.*;
 
 @Component
-public class NagerDateApiClient {
+class NagerDateApiClient {
 
     private final Logger logger = LoggerFactory.getLogger(NagerDateApiClient.class);
 
@@ -28,6 +27,7 @@ public class NagerDateApiClient {
 
     public List<CountryDTO> getAvailableCountries() {
 
+        logger.info("getting available countries");
         String endpoint = nagerDateApiUrl + AVAILABLE_COUNTRIES_ENDPOINT;
         Class<CountryDTO[]> aClass = CountryDTO[].class;
         return consumeEndpoint(aClass, endpoint, Collections.emptyMap());
@@ -35,6 +35,7 @@ public class NagerDateApiClient {
 
     public List<CountryHolidayDTO> getCountryHolidaysInYearAndCountry(int year, CountryDTO countryDTO) {
 
+        logger.info("getting holidays data for countryCode {} and for year {}", countryDTO.countryCode(), year);
         String endpoint = nagerDateApiUrl + HOLIDAYS_PER_YEAR_AND_COUNTRY_ENDPOINT;
         Class<CountryHolidayDTO[]> aClass = CountryHolidayDTO[].class;
         Map<String, String> params = new HashMap<>();

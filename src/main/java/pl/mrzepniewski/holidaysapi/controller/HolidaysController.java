@@ -4,11 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import pl.mrzepniewski.holidaysapi.client.NagerDateApiClient;
-import pl.mrzepniewski.holidaysapi.exceptions.BadRequestException;
-import pl.mrzepniewski.holidaysapi.exceptions.NotFoundException;
+import pl.mrzepniewski.holidaysapi.controller.exceptions.BadRequestException;
+import pl.mrzepniewski.holidaysapi.controller.exceptions.InternalServerException;
+import pl.mrzepniewski.holidaysapi.controller.exceptions.NotFoundException;
 import pl.mrzepniewski.holidaysapi.model.CountryDTO;
 import pl.mrzepniewski.holidaysapi.model.HolidaysResponse;
+import pl.mrzepniewski.holidaysapi.service.DataSourceException;
 import pl.mrzepniewski.holidaysapi.service.HolidaysService;
 
 import java.time.LocalDate;
@@ -22,7 +23,6 @@ public class HolidaysController {
     private final Logger logger = LoggerFactory.getLogger(HolidaysController.class);
 
     private HolidaysService holidaysService;
-    private NagerDateApiClient nagerDateApiClient;
 
     @GetMapping("/{countryCode}/{holidayDate}/nextHolidayOccuringInAnotherCountriesInSameDay")
     public HolidaysResponse getNextHolidayOccuringInSameDayByCountryCodes(@PathVariable String countryCode, //
@@ -32,7 +32,7 @@ public class HolidaysController {
         logger.info("getNextHolidayOccuringInSameDayByCountryCodes starts for request /{}/{}/nextHolidayOccuringInSameDay/{}",
                 countryCode, holidayDate, additionalCountryCode);
         try {
-            List<CountryDTO> availableCountries = nagerDateApiClient.getAvailableCountries();
+            List<CountryDTO> availableCountries = holidaysService.getAvailableCountries();
 
             CountryDTO countryDTO = findCountryInAvailableCountries(availableCountries, countryCode);
             CountryDTO additionalCountryDTO = findCountryInAvailableCountries(availableCountries, additionalCountryCode);
@@ -41,8 +41,11 @@ public class HolidaysController {
                     .findNextHolidayOccuringInTheSameDayInBothCountries(holidayDate, countryDTO, additionalCountryDTO);
             return nextMatchingDateCountryHolidays //
                     .orElseThrow(() -> new NotFoundException("There is no common holidays after " + holidayDate + " for provided countries"));
+        } catch (DataSourceException dataSourceException) {
+            logger.error("Nager Date Api threw error", dataSourceException);
+            throw new InternalServerException();
         } finally {
-            logger.info("getNextHolidayOccurringInTheSameDayInAnotherCountry finished processing request");
+            logger.info("getNextHolidayOccuringInSameDayByCountryCodes finished processing request");
         }
     }
 
@@ -58,11 +61,5 @@ public class HolidaysController {
     public void setHolidaysService(HolidaysService holidaysService) {
 
         this.holidaysService = holidaysService;
-    }
-
-    @Autowired
-    public void setNagerDateApiClient(NagerDateApiClient nagerDateApiClient) {
-
-        this.nagerDateApiClient = nagerDateApiClient;
     }
 }

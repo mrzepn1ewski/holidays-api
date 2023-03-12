@@ -2,7 +2,6 @@ package pl.mrzepniewski.holidaysapi.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.mrzepniewski.holidaysapi.client.NagerDateApiClient;
 import pl.mrzepniewski.holidaysapi.model.CountryDTO;
 import pl.mrzepniewski.holidaysapi.model.CountryHolidayDTO;
 import pl.mrzepniewski.holidaysapi.model.HolidaysResponse;
@@ -18,8 +17,13 @@ import java.util.stream.Collectors;
 public class HolidaysService {
     private NagerDateApiClient nagerDateApiClient;
 
+    public List<CountryDTO> getAvailableCountries() throws DataSourceException {
+
+        return nagerDateApiClient.getAvailableCountries();
+    }
+
     public Optional<HolidaysResponse> findNextHolidayOccuringInTheSameDayInBothCountries(LocalDate holidayDate, CountryDTO countryDTO, //
-                                                                                         CountryDTO additionalCountryDTO) {
+                                                                                         CountryDTO additionalCountryDTO) throws DataSourceException {
 
         List<CountryHolidayDTO> sortedCountry1HolidaysAfterDate = getSortedCountryHolidaysAfterDate(holidayDate, countryDTO);
         List<CountryHolidayDTO> sortedCountry2HolidaysAfterDate = getSortedCountryHolidaysAfterDate(holidayDate, additionalCountryDTO);
