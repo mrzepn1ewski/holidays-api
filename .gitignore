@@ -3,3 +3,5 @@
 mvnw.cmd
 mvnw
 target/
+*.iml
+src/main/resources/application-dev.properties
